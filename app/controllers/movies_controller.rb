@@ -7,14 +7,24 @@ class MoviesController < ApplicationController
   end
 
   def index
+    valid_sorts = ['title', 'release_date']
+    @movie_title_classes = ''
+    @release_title_classes = ''
     @all_ratings = Movie.all_ratings
-    #should be empty at first
-    @ratings_to_show = Movie.ratings_to_show
-    if params.has_key?(:ratings)
-      @ratings_to_show = params[:ratings].keys
-    end
+    @ratings_to_show = params[:ratings] || Movie.ratings_to_show
     @movies = Movie.with_ratings(@ratings_to_show)
+  
+    if params.has_key?(:sort) && valid_sorts.include?(params[:sort])
+      sort = params[:sort]
+      @movies = @movies.order(sort)
+      @movie_title_classes = 'hilite bg-warning' if sort == 'title'
+      @release_title_classes = 'hilite bg-warning' if sort == 'release_date'
+    end
+
+    @title_sort_path = movies_path(sort: 'title', ratings: @ratings_to_show)
+    @release_date_sort_path = movies_path(sort: 'release_date', ratings: @ratings_to_show)
   end
+  
 
   def new
     # default: render 'new' template
@@ -44,10 +54,12 @@ class MoviesController < ApplicationController
     redirect_to movies_path
   end
 
+
   private
   # Making "internal" methods private is not required, but is a common practice.
   # This helps make clear which methods respond to requests, and which ones do not.
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
   end
+
 end
