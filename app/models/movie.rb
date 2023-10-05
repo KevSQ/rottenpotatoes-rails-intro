@@ -16,13 +16,4 @@ class Movie < ActiveRecord::Base
     @checked_ratings = Array.new()
   end
 
-
-  def create_ratings_hash(ratings)
-    ratings_hash = {}
-    ratings.each do |rating|
-      ratings_hash[rating] = '1'
-    end
-    ratings_hash
-  end
-
 end

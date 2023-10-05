@@ -11,18 +11,23 @@ class MoviesController < ApplicationController
     @movie_title_classes = ''
     @release_title_classes = ''
     @all_ratings = Movie.all_ratings
-    @ratings_to_show = params[:ratings] || Movie.ratings_to_show
+    @ratings_to_show = params[:ratings] || session[:ratings] || Movie.ratings_to_show
     @movies = Movie.with_ratings(@ratings_to_show)
   
     if params.has_key?(:sort) && valid_sorts.include?(params[:sort])
       sort = params[:sort]
       @movies = @movies.order(sort)
+      session[:sort] = sort
+      @movie_title_classes = 'hilite bg-warning' if sort == 'title'
+      @release_title_classes = 'hilite bg-warning' if sort == 'release_date'
+    elsif session[:sort].present?
+      sort = session[:sort]
+      @movies = @movies.order(sort)
       @movie_title_classes = 'hilite bg-warning' if sort == 'title'
       @release_title_classes = 'hilite bg-warning' if sort == 'release_date'
     end
+    session[:ratings] = @ratings_to_show
 
-    @title_sort_path = movies_path(sort: 'title', ratings: @ratings_to_show)
-    @release_date_sort_path = movies_path(sort: 'release_date', ratings: @ratings_to_show)
   end
   
 
